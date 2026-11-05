@@ -1,0 +1,17 @@
+// Após publicar o Apps Script, cole abaixo a URL /exec.
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz4MMFaM9RTt-Y1q43WAteXPSo0IbS-ENb77Litt0u6S4x-EmR2b_bQPoVGXCsX7uC6Yw/exec';
+self.addEventListener('install', event => { self.skipWaiting(); });
+self.addEventListener('activate', event => { event.waitUntil(self.clients.claim()); });
+self.addEventListener('fetch', event => {
+  const u = new URL(event.request.url);
+  if (event.request.method === 'POST' && u.pathname.endsWith('/share')) {
+    event.respondWith((async () => {
+      const form = await event.request.formData();
+      const target = new URL(APPS_SCRIPT_URL);
+      target.searchParams.set('title', form.get('title') || '');
+      target.searchParams.set('shared', form.get('text') || '');
+      target.searchParams.set('url', form.get('url') || '');
+      return Response.redirect(target.toString(), 303);
+    })());
+  }
+});
